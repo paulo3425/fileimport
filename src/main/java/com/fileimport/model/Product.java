@@ -31,6 +31,9 @@ public class Product {
     @Column(name = "price", nullable = false, scale = 9)
     private BigDecimal price;
 
+    @Column(name = "totalPrice", nullable = false, scale = 9)
+    private BigDecimal totalPrice;
+
     @OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
     @JoinColumn(name = "productType_id", referencedColumnName = "id", nullable = false)
     private ProductType productType;

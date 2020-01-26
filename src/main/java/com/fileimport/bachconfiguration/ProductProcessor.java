@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 
-public class ProductProcessor implements ItemProcessor<Payload, Product> {
+public class ProductProcessor<T, Y> implements ItemProcessor<Payload, Product> {
 
 //    @Autowired
 //    private ProductRepository productRepository;

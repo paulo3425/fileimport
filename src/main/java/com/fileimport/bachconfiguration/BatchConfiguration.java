@@ -1,42 +1,37 @@
 package com.fileimport.bachconfiguration;
 
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fileimport.dto.Payload;
-import com.fileimport.model.Industry;
-import com.fileimport.model.Product;
-import com.fileimport.model.ProductOrigin;
-import com.fileimport.model.ProductType;
-import com.fileimport.repository.IndustryRepository;
-import com.fileimport.repository.ProductOriginRepository;
-import com.fileimport.repository.ProductRepository;
-import com.fileimport.repository.ProductTypeRepository;
+import lombok.SneakyThrows;
 import org.springframework.batch.core.*;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.configuration.annotation.*;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.data.RepositoryItemReader;
-import org.springframework.batch.item.data.RepositoryItemWriter;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
 
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.function.Function;
 
 @Configuration
 @EnableBatchProcessing
@@ -47,31 +42,41 @@ public class BatchConfiguration {
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
 
+//    @Value("${thread.count}")
+//    private Integer threadCount;
 
+    @Value("${productJob.path}")
+    private String path;
 
-
-    @Bean
-    public Job productJob(Step productStep) {
+    @SneakyThrows
+    @Bean(name = "productJob")
+    @Autowired
+    public Job productJob(JsonItemReader reader) {
         return jobBuilderFactory.get("productJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(productStep)
+                .flow(productStep(reader))
                 .end()
                 .build();
     }
 
     @Bean
     @StepScope
-    public JsonItemReader jsonItemReader()  {
+    public JsonItemReader<Payload> jsonItemReader(@Value("#{jobParameters[INPUT_FILE_PATH]}") String file) {
+//        ObjectMapper mapper = new ObjectMapper();
+//
+//        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
+        JacksonJsonObjectReader reader = new JacksonJsonObjectReader(Payload.class);
+//        reader.setMapper(mapper);
 
-       return new JsonItemReaderBuilder()
-                .jsonObjectReader(new JacksonJsonObjectReader(Payload.class))
-                .resource(new PathResource("/home/paulo/Documents/massa/teste.json"))
-                .name("data")
+        return new JsonItemReaderBuilder()
+                .jsonObjectReader(reader)
+                .resource(new PathResource(path + file))
+                //.resource(new PathResource("/home/paulo/Documents/massa/data_1.json"))
+                .name("productRead")
                 .build();
 
 
-        //return null;
     }
 
     @Bean
@@ -79,30 +84,28 @@ public class BatchConfiguration {
         return new ProductProcessor();
     }
 
-    @Bean ProductWrite write(){
+    @Bean
+    public ProductWrite write() {
         return new ProductWrite();
     }
 
-//    @Bean
-//    public RepositoryItemWriter writer() {
-//        RepositoryItemWriter write = new RepositoryItemWriter();
-//        write.setRepository(repository);
-//        write.setMethodName("save");
-//
-//        return write;
-//    }
-
-
     @Bean
-    public Step productStep() throws MalformedURLException {
+    public Step productStep(ItemReader reader) throws MalformedURLException {
         return stepBuilderFactory
                 .get("productStep")
                 .listener(productStepListener())
-                .chunk(10)
-                .reader(jsonItemReader())
+                .chunk(100)
+                .reader(reader)
                 .processor(processor())
                 .writer(write())
+                .taskExecutor(taskExecutor())
                 .build();
+    }
+    @Bean
+    public TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(1);
+        return taskExecutor;
     }
 
 
@@ -123,7 +126,7 @@ public class BatchConfiguration {
                 long elapsed = new Date().getTime()
                         - stepExecution.getExecutionContext().getLong("start");
                 System.out.println("Step name:" + stepExecution.getStepName()
-                        + " Ended. Running time is "+ elapsed +" milliseconds.");
+                        + " Ended. Running time is " + elapsed + " milliseconds.");
                 System.out.println("Read Count:" + stepExecution.getReadCount() +
                         " Write Count:" + stepExecution.getWriteCount());
                 return ExitStatus.COMPLETED;
