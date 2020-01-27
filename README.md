@@ -26,7 +26,7 @@ an array so if you are using your own files just remove {"data":} from them"
 ## Getting application up
 ```
 Access directory of project by terminal and execute the following commands:
-    mvn package
+    mvn package -DskipTests 
     docker-compose up --build -d
 ```
 
@@ -37,7 +37,7 @@ How to run the automated tests for this system
 
 ```
 Access directory of project by terminal and execute the following commands:
-    mvn package
+    mvn package -DskipTests 
     docker-compose up --build -d
     mvn test
 ```
