@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### How to configure folder of files that it is going to be processed
 
 ```
-Open docker-composer and set diretory file like you can see below:
+Open docker-compose and set directory file like you can see below:
     volumes:
     - /home/paulo/Documents/massa:/tmp 
 Only change "/home/paulo/Documents/massa" to your folder
@@ -25,8 +25,9 @@ an array so if you are using your own files just remove {"data":} from them"
 ```
 ## Getting application up
 ```
-Execute "mvn package"
-Execute "docker-compose up --build -d"
+Access directory of project by terminal and execute the following commands:
+    mvn package
+    docker-compose up --build -d
 ```
 
 ## Running the tests
@@ -35,9 +36,10 @@ How to run the automated tests for this system
 
 
 ```
-Execute "mvn package"
-Execute "docker-compose up --build -d"
-Execute "mvn test"
+Access directory of project by terminal and execute the following commands:
+    mvn package
+    docker-compose up --build -d
+    mvn test
 ```
 
 ## How to import a file
