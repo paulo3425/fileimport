@@ -96,11 +96,6 @@ public class ProductService {
         BigDecimal avgPrice = product.getPrice().subtract(totalDivided);
         Integer quantityDivide = product.getQuantity() / lojistas;
 
-        BigDecimal totalPrice = avgPrice.multiply(new BigDecimal(product.getQuantity()));
-        BigDecimal totalPriceDivided = totalPrice.divide(new BigDecimal(lojistas), 9, RoundingMode.HALF_DOWN);
-
-
-
         for (int count = lojistas; count >= 1; count--)
             products.add(
                     AvgProductDto.builder()

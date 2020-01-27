@@ -9,10 +9,9 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("productJob")
@@ -25,21 +24,21 @@ public class JobRunController {
     @Autowired
     private Job productJob;
 
-    @RequestMapping("/file/{input_file_name}/execute")
-    @ResponseBody
-    public String requestJob3(@PathVariable("input_file_name") String inputFileName) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+
+    @PostMapping("/file/{input_file_name}/execute")
+    public ResponseEntity<Void> requestJob3(@PathVariable("input_file_name") String inputFileName) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
         try {
             JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
             jobParametersBuilder.addString("INPUT_FILE_PATH", inputFileName);
 
             jobLauncher.run(productJob, jobParametersBuilder.toJobParameters());
-            return "Job " + inputFileName + " has executed!";
+            return new ResponseEntity<Void>(HttpStatus.CREATED);
 
         } catch (JobInstanceAlreadyCompleteException ex) {
-            return new String("This job has been completed already!");
+            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
