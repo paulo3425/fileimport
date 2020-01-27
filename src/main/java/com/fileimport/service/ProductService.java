@@ -1,5 +1,6 @@
 package com.fileimport.service;
 
+import com.fileimport.dto.AvgProductDto;
 import com.fileimport.model.Industry;
 import com.fileimport.model.Product;
 import com.fileimport.model.ProductOrigin;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -64,7 +66,7 @@ public class ProductService {
 
     }
 
-    private final BigDecimal calcAvgPrice(final Product savedProduct, final Product newProduct) {
+    private BigDecimal calcAvgPrice(final Product savedProduct, final Product newProduct) {
 
         int totalQty = savedProduct.getQuantity() + newProduct.getQuantity();
         int qty1 = savedProduct.getQuantity();
@@ -76,7 +78,45 @@ public class ProductService {
         BigDecimal total = totalValor1.add(totalValor2);
 
 
-        return total.setScale(9).divide(new BigDecimal(totalQty), RoundingMode.DOWN);
+        return total.divide(new BigDecimal(totalQty), 9, RoundingMode.DOWN);
     }
 
+    public List<AvgProductDto> getPriceAvg(final String name, final int lojistas) {
+
+        Product product = this.productRepository.getById(name);
+
+        List<AvgProductDto> products = new ArrayList<>();
+
+        if (product == null)
+            return null;
+
+        BigDecimal totalCalc = product.getPrice().multiply(new BigDecimal(product.getQuantity()));
+        BigDecimal totalToDivide = totalCalc.subtract(product.getTotalPrice());
+        BigDecimal totalDivided = totalToDivide.divide(new BigDecimal(product.getQuantity()), 9, RoundingMode.HALF_DOWN);
+        BigDecimal avgPrice = product.getPrice().subtract(totalDivided);
+        Integer quantityDivide = product.getQuantity() / lojistas;
+
+        BigDecimal totalPrice = avgPrice.multiply(new BigDecimal(product.getQuantity()));
+        BigDecimal totalPriceDivided = totalPrice.divide(new BigDecimal(lojistas), 9, RoundingMode.HALF_DOWN);
+
+
+
+        for (int count = lojistas; count >= 1; count--)
+            products.add(
+                    AvgProductDto.builder()
+                            .name(name)
+                            .avgPrice(avgPrice)
+                            .quantity(quantityDivide)
+                            .totalPrice(avgPrice.multiply(new BigDecimal(quantityDivide)))
+                            .build());
+
+        if (product.getQuantity() % lojistas != 0) {
+            products.get(0).setQuantity(quantityDivide + 1);
+            products.get(0).setTotalPrice(products.get(0).getTotalPrice().add(avgPrice));
+        }
+
+        return products;
+
+
+    }
 }

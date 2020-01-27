@@ -1,34 +1,22 @@
 package com.fileimport.bachconfiguration;
 
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fileimport.dto.Payload;
+import com.fileimport.dto.PayloadDto;
 import lombok.SneakyThrows;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.*;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.PathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.net.MalformedURLException;
 import java.util.Date;
@@ -61,12 +49,12 @@ public class BatchConfiguration {
 
     @Bean
     @StepScope
-    public JsonItemReader<Payload> jsonItemReader(@Value("#{jobParameters[INPUT_FILE_PATH]}") String file) {
+    public JsonItemReader<PayloadDto> jsonItemReader(@Value("#{jobParameters[INPUT_FILE_PATH]}") String file) {
 //        ObjectMapper mapper = new ObjectMapper();
 //
 //        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-        JacksonJsonObjectReader reader = new JacksonJsonObjectReader(Payload.class);
+        JacksonJsonObjectReader reader = new JacksonJsonObjectReader(PayloadDto.class);
 //        reader.setMapper(mapper);
 
         return new JsonItemReaderBuilder()

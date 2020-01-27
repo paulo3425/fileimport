@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("productJob")
-public class JobRun {
+public class JobRunController {
 
     @Autowired
     private JobLauncher jobLauncher;
@@ -29,11 +29,11 @@ public class JobRun {
     @ResponseBody
     public String requestJob3(@PathVariable("input_file_name") String inputFileName) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
         try {
-        JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
-        jobParametersBuilder.addString("INPUT_FILE_PATH", inputFileName);
+            JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
+            jobParametersBuilder.addString("INPUT_FILE_PATH", inputFileName);
 
-        jobLauncher.run(productJob, jobParametersBuilder.toJobParameters());
-        return "Job " + inputFileName + " has executed!";
+            jobLauncher.run(productJob, jobParametersBuilder.toJobParameters());
+            return "Job " + inputFileName + " has executed!";
 
         } catch (JobInstanceAlreadyCompleteException ex) {
             return new String("This job has been completed already!");

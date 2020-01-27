@@ -1,20 +1,15 @@
 package com.fileimport.bachconfiguration;
 
-import com.fileimport.dto.Payload;
+import com.fileimport.dto.PayloadDto;
 import com.fileimport.model.Industry;
 import com.fileimport.model.Product;
 import com.fileimport.model.ProductOrigin;
 import com.fileimport.model.ProductType;
-import com.fileimport.repository.IndustryRepository;
-import com.fileimport.repository.ProductOriginRepository;
-import com.fileimport.repository.ProductRepository;
-import com.fileimport.repository.ProductTypeRepository;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 
-public class ProductProcessor<T, Y> implements ItemProcessor<Payload, Product> {
+public class ProductProcessor<T, Y> implements ItemProcessor<PayloadDto, Product> {
 
 //    @Autowired
 //    private ProductRepository productRepository;
@@ -30,7 +25,7 @@ public class ProductProcessor<T, Y> implements ItemProcessor<Payload, Product> {
 
 
     @Override
-    public Product process(Payload p) throws Exception {
+    public Product process(PayloadDto p) throws Exception {
 
 //        ProductType productType = productTypeRepository.findByName(p.getType());
 //        Industry industry = industryRepository.findByName(p.getIndustry());

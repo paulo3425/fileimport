@@ -9,7 +9,7 @@ import java.util.List;
 
 
 @Data
-public class Payload {
+public class PayloadDto {
 
 
     private String product;
