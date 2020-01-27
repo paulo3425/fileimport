@@ -1,7 +1,6 @@
-package com.fileimport.bdd.stepdef;
+package com.fileimport.bdd.stepdefs;
 
 import com.fileimport.dto.AvgProductDto;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -13,11 +12,10 @@ import org.junit.Assert;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
-public class Stepdefs {
+public class GenericStepdefs {
 
     private Response response;
     private String path;
