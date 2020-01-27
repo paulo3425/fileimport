@@ -1,0 +1,27 @@
+version: "3.4"
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=34252187
+      - POSTGRES_DB=POSTGRESQL
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+  fileimport:
+    image: fileimport
+    build: .
+    volumes:
+    - /home/paulo/Documents/massa:/tmp
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=34252187
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    links:
+      - "postgres:postgres"
