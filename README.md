@@ -10,7 +10,7 @@ Why did we use Spring-Batch in this project ?
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-### How to configure folder of files that it going to be processed
+### How to configure folder of files that it is going to be processed
 
 ```
 Open docker-composer and set diretory file like you can see below:
